@@ -1,0 +1,47 @@
+name: Build bcm2710
+on:
+   workflow_dispatch:
+   push:
+
+jobs:
+    build:
+        name: Build bcm2710
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Maximize build space
+              uses: AdityaGarg8/remove-unwanted-software@v1
+              with:
+                remove-android: 'true'
+                remove-dotnet: 'true'
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Build
+              run: |
+                ./scripts/feeds update -a
+                ./scripts/feeds install -a
+                wget https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2710/llvm-bpf-18.1.7.Linux-x86_64.tar.zst
+                tar -xvf llvm-bpf-18.1.7.Linux-x86_64.tar.zst
+                cp .github/workflows/2710 .config
+                make defconfig
+                make download -j32
+                make -j$(nproc) 'IGNORE_ERRORS=n m'
+            - name: Delete tag
+              uses: ClementTsang/delete-tag-and-release@v0.4.0
+              with:
+                delete_release: true
+                tag_name: bcm2710-6.6
+              env:
+                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create release
+              uses: ncipollo/release-action@v1.14.0
+              with:
+                allowUpdates: true
+                commit: ${{ env.HASH }}
+                name: Raspberry Pi 2710 Firmware Images ${{ env.DATE }}
+                tag: bcm2710-6.6
+                replacesArtifacts: true
+                prerelease: true
+                token: "${{ secrets.GITHUB_TOKEN }}"
+                artifacts: bin/targets/bcm27xx/bcm2710/*
