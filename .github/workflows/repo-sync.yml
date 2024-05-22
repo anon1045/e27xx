@@ -1,0 +1,29 @@
+name: repo-sync
+on:
+  schedule:
+  - cron:  '*/59 * * * *'
+  workflow_dispatch:
+  push:
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: repo-sync
+      run: |
+        git fetch
+        git remote add open https://github.com/openwrt/openwrt.git
+        git checkout master
+        git fetch open main
+        git reset --hard open/main
+        git push -f  
+      env:
+        github_token: ${{ secrets.PAT }}
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
