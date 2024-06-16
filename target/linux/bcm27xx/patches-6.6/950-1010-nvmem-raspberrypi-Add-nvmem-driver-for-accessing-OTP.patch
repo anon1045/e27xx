@@ -19,9 +19,9 @@ Signed-off-by: Dom Cobley <popcornmix@gmail.com>
 
 --- a/drivers/nvmem/Kconfig
 +++ b/drivers/nvmem/Kconfig
-@@ -41,6 +41,18 @@ config NVMEM_APPLE_EFUSES
- 	  This driver can also be built as a module. If so, the module will
- 	  be called nvmem-apple-efuses.
+@@ -52,6 +52,18 @@ config NVMEM_BLOCK
+ 	  typically used with eMMC to store MAC addresses or Wi-Fi
+ 	  calibration data on embedded devices.
  
 +config NVMEM_RASPBERRYPI_OTP
 +	tristate "Raspberry Pi OTP support"
@@ -48,7 +48,7 @@ Signed-off-by: Dom Cobley <popcornmix@gmail.com>
 +nvmem-raspberrypi-otp-y			:= raspberrypi-otp.o
  obj-$(CONFIG_NVMEM_BCM_OCOTP)		+= nvmem-bcm-ocotp.o
  nvmem-bcm-ocotp-y			:= bcm-ocotp.o
- obj-$(CONFIG_NVMEM_BRCM_NVRAM)		+= nvmem_brcm_nvram.o
+ obj-$(CONFIG_NVMEM_BLOCK)		+= nvmem-block.o
 --- /dev/null
 +++ b/drivers/nvmem/raspberrypi-otp.c
 @@ -0,0 +1,133 @@
