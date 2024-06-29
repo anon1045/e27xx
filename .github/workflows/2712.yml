@@ -26,6 +26,8 @@ jobs:
                 git apply 001.patch
                 wget https://patch-diff.githubusercontent.com/raw/openwrt/openwrt/pull/15702.patch
                 wget https://patch-diff.githubusercontent.com/raw/openwrt/openwrt/pull/15703.patch
+                wget https://gist.githubusercontent.com/anon1045/ab83f579b9d509f0e78d2eea5535c80a/raw/c2c3b2b4ece3c31e6184b956304e4ff47c47e7ba/04.patch
+                git apply 04.patch
                 git apply 15702.patch
                 git apply 15703.patch
                 ./scripts/feeds update -a
