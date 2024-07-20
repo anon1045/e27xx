@@ -45,6 +45,20 @@ define Device/friendlyarm_nanopi-r4s
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r4s
 
+define Device/friendlyarm_nanopi-m4v2
+  DEVICE_VENDOR := FriendlyARM
+  DEVICE_MODEL := NanoPi M4v2
+  SOC := rk3399
+  SUPPORTED_DEVICES := friendlyarm,nanopi-m4
+  UBOOT_DEVICE_NAME := nanopi-m4v2-rk3399
+  DEVICE_DTS := rockchip/rk3399-nanopi-m4
+  IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-img | gzip | append-metadata
+  DEVICE_PACKAGES := \
+	kmod-r8169 kmod-usb-net-rtl8152 wpad-openssl \
+	kmod-brcmfmac brcmfmac-nvram-4356-sdio cypress-firmware-4356-sdio
+endef
+TARGET_DEVICES += friendlyarm_nanopi-m4v2
+
 define Device/friendlyelec_nanopi-r5c
   DEVICE_VENDOR := Friendlyelec
   DEVICE_MODEL := NanoPi R5C
