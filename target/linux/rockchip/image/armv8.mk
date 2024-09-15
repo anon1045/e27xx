@@ -67,6 +67,17 @@ define Device/firefly_roc-rk3568-pc
 endef
 TARGET_DEVICES += firefly_roc-rk3568-pc
 
+define Device/hugsun_hugsun-x99
+  DEVICE_VENDOR := Hugsun
+  DEVICE_MODEL := X99 TV BOX
+  SOC := rk3399
+  SUPPORTED_DEVICES := hugsun,x99
+  BOOT_FLOW := pine64-bin
+  DEVICE_PACKAGES := brcmfmac-firmware-ap6255-hugsun-x99 \
+	kmod-brcmfmac kmod-usb-net-rtl8152 wpad-openssl
+endef
+TARGET_DEVICES += hugsun_hugsun-x99
+
 define Device/friendlyarm_nanopc-t4
   DEVICE_VENDOR := FriendlyARM
   DEVICE_MODEL := NanoPC T4

@@ -105,6 +105,13 @@ define U-Boot/guangmiao-g4c-rk3399
     huake_guangmiao-g4c
 endef
 
+define U-Boot/hugsun-x99-rk3399
+  $U-Boot/Default/rk3399)
+  NAME:=Hugsun x99
+  BUILD_DEVICES:= \
+    hugsun_hugsun-x99
+endef
+
 define U-Boot/nanopc-t4-rk3399
   $(U-Boot/Default/rk3399)
   NAME:=NanoPC T4
@@ -329,6 +336,7 @@ UBOOT_TARGETS := \
   guangmiao-g4c-rk3399 \
   nanopi-m4v2-rk3399 \
   nanopi-m4-2gb-rk3399 \
+  hugsun-x99-rk3399 \
   nanopc-t4-rk3399 \
   nanopi-r4s-rk3399 \
   nanopi-r4se-rk3399 \
