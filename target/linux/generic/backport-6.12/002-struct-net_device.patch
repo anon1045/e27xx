@@ -1,6 +1,6 @@
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -2208,12 +2208,8 @@ struct net_device {
+@@ -2224,12 +2224,8 @@ struct net_device {
  #if IS_ENABLED(CONFIG_AX25)
  	void			*ax25_ptr;
  #endif
@@ -47,7 +47,7 @@
  }
 --- a/net/core/net-sysfs.c
 +++ b/net/core/net-sysfs.c
-@@ -765,6 +765,7 @@ static const struct attribute_group nets
+@@ -769,6 +769,7 @@ static const struct attribute_group nets
  	.attrs  = netstat_attrs,
  };
  
@@ -55,7 +55,7 @@
  static struct attribute *wireless_attrs[] = {
  	NULL
  };
-@@ -773,19 +774,7 @@ static const struct attribute_group wire
+@@ -777,19 +778,7 @@ static const struct attribute_group wire
  	.name = "wireless",
  	.attrs = wireless_attrs,
  };
@@ -75,7 +75,7 @@
  
  #else /* CONFIG_SYSFS */
  #define net_class_groups	NULL
-@@ -2129,8 +2118,14 @@ int netdev_register_kobject(struct net_d
+@@ -2132,8 +2121,14 @@ int netdev_register_kobject(struct net_d
  
  	*groups++ = &netstat_group;
  
@@ -93,7 +93,7 @@
  	error = device_add(dev);
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -1076,6 +1076,8 @@ enum {
+@@ -1080,6 +1080,8 @@ enum {
  #define PCI_IRQ_MSIX		(1 << 2) /* Allow MSI-X interrupts */
  #define PCI_IRQ_AFFINITY	(1 << 3) /* Auto-assign affinity */
  
@@ -102,7 +102,7 @@
  /* These external functions are only available when PCI support is enabled */
  #ifdef CONFIG_PCI
  
-@@ -1641,7 +1643,8 @@ int pci_set_vga_state(struct pci_dev *pd
+@@ -1645,7 +1647,8 @@ int pci_set_vga_state(struct pci_dev *pd
   */
  #define PCI_IRQ_VIRTUAL		(1 << 4)
  
@@ -112,7 +112,7 @@
  
  #include <linux/dmapool.h>
  
-@@ -1704,7 +1707,7 @@ pci_alloc_irq_vectors_affinity(struct pc
+@@ -1708,7 +1711,7 @@ pci_alloc_irq_vectors_affinity(struct pc
  			       unsigned int max_vecs, unsigned int flags,
  			       struct irq_affinity *aff_desc)
  {
