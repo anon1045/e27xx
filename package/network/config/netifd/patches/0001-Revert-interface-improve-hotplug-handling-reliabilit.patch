@@ -1,0 +1,16 @@
+--- a/interface.c
++++ b/interface.c
+@@ -1083,11 +1083,11 @@ interface_add_link(struct interface *ifa
+ {
+ 	struct device *mdev = iface->main_dev.dev;
+ 
+-	if (mdev == dev && iface->state == IFS_UP)
++	if (mdev == dev)
+ 		return 0;
+ 
+ 	if (iface->main_dev.hotplug)
+-		interface_set_main_dev(iface, NULL);
++		device_remove_user(&iface->main_dev);
+ 
+ 	if (mdev) {
+ 		if (mdev->hotplug_ops)
