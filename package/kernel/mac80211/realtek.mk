@@ -40,7 +40,7 @@ config-$(call config_package,rtw88-8822bu) += RTW88_8822BU
 config-$(call config_package,rtw88-8822c) += RTW88_8822C
 config-$(call config_package,rtw88-8822ce) += RTW88_8822CE
 config-$(call config_package,rtw88-8822cu) += RTW88_8822CU
-config-$(call config_package,rtw88-8723d) += RTW88_8723D
+config-$(call config_package,rtw88-8723d) += RTW88_8723D RTW88_8723X
 config-$(call config_package,rtw88-8723de) += RTW88_8723DE
 config-$(call config_package,rtw88-8723ds) += RTW88_8723DS
 config-$(call config_package,rtw88-8723du) += RTW88_8723DU
@@ -51,7 +51,7 @@ config-$(call config_package,rtw89) += RTW89 RTW89_CORE
 config-$(call config_package,rtw89-pci) += RTW89_PCI
 config-$(call config_package,rtw89-8851be) += RTW89_8851B RTW89_8851BE
 config-$(call config_package,rtw89-8852ae) += RTW89_8852A RTW89_8852AE
-config-$(call config_package,rtw89-8852be) += RTW89_8852B RTW89_8852BE
+config-$(call config_package,rtw89-8852be) += RTW89_8852B RTW89_8852BE RTW89_8852B_COMMON
 config-$(call config_package,rtw89-8852ce) += RTW89_8852C RTW89_8852CE
 config-$(CONFIG_PACKAGE_RTW89_DEBUG) += RTW89_DEBUG
 config-$(CONFIG_PACKAGE_RTW89_DEBUGFS) += RTW89_DEBUGFS
@@ -264,7 +264,9 @@ define KernelPackage/rtw88-8723d
   $(call KernelPackage/mac80211/Default)
   TITLE:=Realtek RTL8723D family support
   DEPENDS+= +kmod-rtw88 +rtl8723de-firmware
-  FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/realtek/rtw88/rtw88_8723d.ko
+  FILES:=\
+	$(PKG_BUILD_DIR)/drivers/net/wireless/realtek/rtw88/rtw88_8723d.ko \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/realtek/rtw88/rtw88_8723x.ko
   AUTOLOAD:=$(call AutoProbe,rtw88_8723d)
   HIDDEN:=1
 endef
@@ -437,6 +439,7 @@ define KernelPackage/rtw89-8852be
   DEPENDS+= +kmod-rtw89-pci +rtl8852be-firmware
   FILES:= \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/realtek/rtw89/rtw89_8852b.ko \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/realtek/rtw89/rtw89_8852b_common.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/realtek/rtw89/rtw89_8852be.ko
   AUTOLOAD:=$(call AutoProbe,rtw89_8852be)
 endef

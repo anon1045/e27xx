@@ -1,0 +1,118 @@
+From bca8bc0399ac2efd56e6adbed0307e10125a556c Mon Sep 17 00:00:00 2001
+From: Aditya Kumar Singh <quic_adisi@quicinc.com>
+Date: Fri, 6 Sep 2024 12:14:26 +0530
+Subject: [PATCH] wifi: mac80211: handle ieee80211_radar_detected() for MLO
+
+Currently DFS works under assumption there could be only one channel
+context in the hardware. Hence, drivers just calls the function
+ieee80211_radar_detected() passing the hardware structure. However, with
+MLO, this obviously will not work since number of channel contexts will be
+more than one and hence drivers would need to pass the channel information
+as well on which the radar is detected.
+
+Also, when radar is detected in one of the links, other link's CAC should
+not be cancelled.
+
+Hence, in order to support DFS with MLO, do the following changes -
+  * Add channel context conf pointer as an argument to the function
+    ieee80211_radar_detected(). During MLO, drivers would have to pass on
+    which channel context conf radar is detected. Otherwise, drivers could
+    just pass NULL.
+  * ieee80211_radar_detected() will iterate over all channel contexts
+    present and
+  	* if channel context conf is passed, only mark that as radar
+  	  detected
+  	* if NULL is passed, then mark all channel contexts as radar
+  	  detected
+  	* Then as usual, schedule the radar detected work.
+  * In the worker, go over all the contexts again and for all such context
+    which is marked with radar detected, cancel the ongoing CAC by calling
+    ieee80211_dfs_cac_cancel() and then notify cfg80211 via
+    cfg80211_radar_event().
+  * To cancel the CAC, pass the channel context as well where radar is
+    detected to ieee80211_dfs_cac_cancel(). This ensures that CAC is
+    canceled only on the links using the provided context, leaving other
+    links unaffected.
+
+This would also help in scenarios where there is split phy 5 GHz radio,
+which is capable of DFS channels in both lower and upper band. In this
+case, simultaneous radars can be detected.
+
+Signed-off-by: Aditya Kumar Singh <quic_adisi@quicinc.com>
+Link: https://patch.msgid.link/20240906064426.2101315-9-quic_adisi@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ drivers/net/wireless/ath/ath10k/debug.c       |  4 +-
+ drivers/net/wireless/ath/ath10k/mac.c         |  2 +-
+ drivers/net/wireless/ath/ath10k/wmi.c         |  2 +-
+ drivers/net/wireless/ath/ath11k/wmi.c         |  2 +-
+ drivers/net/wireless/ath/ath12k/wmi.c         |  2 +-
+ drivers/net/wireless/ath/ath9k/dfs.c          |  2 +-
+ drivers/net/wireless/ath/ath9k/dfs_debug.c    |  2 +-
+ .../net/wireless/mediatek/mt76/mt7615/mcu.c   |  2 +-
+ .../net/wireless/mediatek/mt76/mt76x02_dfs.c  |  4 +-
+ .../net/wireless/mediatek/mt76/mt7915/mcu.c   |  2 +-
+ .../net/wireless/mediatek/mt76/mt7996/mcu.c   |  2 +-
+ drivers/net/wireless/ti/wl18xx/event.c        |  2 +-
+ drivers/net/wireless/virtual/mac80211_hwsim.c |  2 +-
+ include/net/mac80211.h                        |  5 +-
+ net/mac80211/chan.c                           |  1 +
+ net/mac80211/ieee80211_i.h                    |  5 +-
+ net/mac80211/pm.c                             |  2 +-
+ net/mac80211/util.c                           | 52 +++++++++++++++----
+ 18 files changed, 66 insertions(+), 29 deletions(-)
+
+
+--- a/mt7615/mcu.c
++++ b/mt7615/mcu.c
+@@ -394,7 +394,7 @@ mt7615_mcu_rx_radar_detected(struct mt76
+ 	if (mt76_phy_dfs_state(mphy) < MT_DFS_STATE_CAC)
+ 		return;
+ 
+-	ieee80211_radar_detected(mphy->hw);
++	ieee80211_radar_detected(mphy->hw, NULL);
+ 	dev->hw_pattern++;
+ }
+ 
+--- a/mt76x02_dfs.c
++++ b/mt76x02_dfs.c
+@@ -630,7 +630,7 @@ static void mt76x02_dfs_tasklet(struct t
+ 		radar_detected = mt76x02_dfs_check_detection(dev);
+ 		if (radar_detected) {
+ 			/* sw detector rx radar pattern */
+-			ieee80211_radar_detected(dev->mt76.hw);
++			ieee80211_radar_detected(dev->mt76.hw, NULL);
+ 			mt76x02_dfs_detector_reset(dev);
+ 
+ 			return;
+@@ -658,7 +658,7 @@ static void mt76x02_dfs_tasklet(struct t
+ 
+ 		/* hw detector rx radar pattern */
+ 		dfs_pd->stats[i].hw_pattern++;
+-		ieee80211_radar_detected(dev->mt76.hw);
++		ieee80211_radar_detected(dev->mt76.hw, NULL);
+ 		mt76x02_dfs_detector_reset(dev);
+ 
+ 		return;
+--- a/mt7915/mcu.c
++++ b/mt7915/mcu.c
+@@ -297,7 +297,7 @@ mt7915_mcu_rx_radar_detected(struct mt79
+ 						&dev->rdd2_chandef,
+ 						GFP_ATOMIC);
+ 	else
+-		ieee80211_radar_detected(mphy->hw);
++		ieee80211_radar_detected(mphy->hw, NULL);
+ 	dev->hw_pattern++;
+ }
+ 
+--- a/mt7996/mcu.c
++++ b/mt7996/mcu.c
+@@ -371,7 +371,7 @@ mt7996_mcu_rx_radar_detected(struct mt79
+ 						&dev->rdd2_chandef,
+ 						GFP_ATOMIC);
+ 	else
+-		ieee80211_radar_detected(mphy->hw);
++		ieee80211_radar_detected(mphy->hw, NULL);
+ 	dev->hw_pattern++;
+ }
+ 

@@ -93,9 +93,9 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  	default:
  		return "UNKNOWN";
  	}
-@@ -282,27 +312,14 @@ static void ath11k_mhi_op_status_cb(stru
- 		if (!(test_bit(ATH11K_FLAG_UNREGISTERING, &ab->dev_flags)))
+@@ -290,28 +320,13 @@ static void ath11k_mhi_op_status_cb(stru
  			queue_work(ab->workqueue_aux, &ab->reset_work);
+ 
  		break;
 +	case MHI_CB_EE_SBL_MODE:
 +		ath11k_mhi_qrtr_instance_set(mhi_cntrl);
@@ -103,8 +103,10 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  	default:
  		break;
  	}
- }
  
+-	ab_pci->mhi_pre_cb = cb;
+-}
+-
 -static int ath11k_mhi_op_read_reg(struct mhi_controller *mhi_cntrl,
 -				  void __iomem *addr,
 -				  u32 *out)
@@ -120,10 +122,9 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 -{
 -	writel(val, addr);
 -}
--
+ 
  static int ath11k_mhi_read_addr_from_dt(struct mhi_controller *mhi_ctrl)
  {
- 	struct device_node *np;
 --- a/drivers/net/wireless/ath/ath11k/mhi.h
 +++ b/drivers/net/wireless/ath/ath11k/mhi.h
 @@ -17,6 +17,9 @@

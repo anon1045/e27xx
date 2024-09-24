@@ -1,0 +1,49 @@
+From 414e736c3db032733d20d0ada8200af4159d2940 Mon Sep 17 00:00:00 2001
+From: Aditya Kumar Singh <quic_adisi@quicinc.com>
+Date: Mon, 22 Apr 2024 11:04:08 +0530
+Subject: [PATCH] wifi: mac80211: handle color change per link
+
+In order to support color change with MLO, handle the link ID now
+passed from cfg80211, adjust the code to do everything per link
+and call the notifications to cfg80211 correctly.
+
+Signed-off-by: Aditya Kumar Singh <quic_adisi@quicinc.com>
+Link: https://msgid.link/20240422053412.2024075-4-quic_adisi@quicinc.com
+Link: https://msgid.link/20240422053412.2024075-5-quic_adisi@quicinc.com
+Link: https://msgid.link/20240422053412.2024075-6-quic_adisi@quicinc.com
+Link: https://msgid.link/20240422053412.2024075-7-quic_adisi@quicinc.com
+[squash, move API call updates to this patch]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ drivers/net/wireless/ath/ath11k/mac.c         |   2 +-
+ drivers/net/wireless/ath/ath11k/wmi.c         |   3 +-
+ .../net/wireless/mediatek/mt76/mt7915/mcu.c   |   2 +-
+ .../net/wireless/mediatek/mt76/mt7996/mcu.c   |   2 +-
+ include/net/mac80211.h                        |   6 +-
+ net/mac80211/cfg.c                            | 144 ++++++++++++------
+ net/mac80211/rx.c                             |   7 +-
+ 7 files changed, 111 insertions(+), 55 deletions(-)
+
+
+--- a/mt7915/mcu.c
++++ b/mt7915/mcu.c
+@@ -335,7 +335,7 @@ mt7915_mcu_cca_finish(void *priv, u8 *ma
+ 	if (!vif->bss_conf.color_change_active || vif->type == NL80211_IFTYPE_STATION)
+ 		return;
+ 
+-	ieee80211_color_change_finish(vif);
++	ieee80211_color_change_finish(vif, 0);
+ }
+ 
+ static void
+--- a/mt7996/mcu.c
++++ b/mt7996/mcu.c
+@@ -421,7 +421,7 @@ mt7996_mcu_cca_finish(void *priv, u8 *ma
+ 	if (!vif->bss_conf.color_change_active || vif->type == NL80211_IFTYPE_STATION)
+ 		return;
+ 
+-	ieee80211_color_change_finish(vif);
++	ieee80211_color_change_finish(vif, 0);
+ }
+ 
+ static void
