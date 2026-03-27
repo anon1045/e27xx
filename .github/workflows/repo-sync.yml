@@ -17,8 +17,8 @@ jobs:
         git remote add open https://github.com/openwrt/openwrt.git
         git checkout master
         git fetch open master
-        git reset --hard open/master
-        git push -f  
+        git reset --hard open/master || true
+        git push -f || true
       env:
         github_token: ${{ secrets.PAT }}
     - name: Delete workflow runs
