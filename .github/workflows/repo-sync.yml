@@ -16,9 +16,8 @@ jobs:
         git fetch
         git remote add open https://github.com/openwrt/openwrt.git
         git checkout master
-        git reset --hard HEAD~100
-        git fetch open main
-        git reset --hard open/main
+        git fetch open master
+        git reset --hard open/master
         git push -f  
       env:
         github_token: ${{ secrets.PAT }}
